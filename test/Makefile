@@ -1,44 +1,55 @@
-# Makefile
-# See https://docs.cocotb.org/en/stable/quickstart.html for more info
+# Verilog Simulation Makefile
 
-# defaults
-SIM ?= icarus
-TOPLEVEL_LANG ?= verilog
-SRC_DIR = $(PWD)/../src
-PROJECT_SOURCES = project.v
+# Directories
+SRC_DIR := $(PWD)/../src
+TB_DIR  := tb
+BUILD_DIR := build
 
-ifneq ($(GATES),yes)
+# Tools
+IVERILOG := iverilog
+VVP := vvp
+GTKWAVE := gtkwave
 
-# RTL simulation:
-SIM_BUILD				= sim_build/rtl
-VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
+# Files
+VCD_FILE := $(TB_DIR)/$(TB).vcd
+SIM_OUT  := $(BUILD_DIR)/sim.out
 
-else
+# Verilog standard
+STD := -g2012
 
-# Gate level simulation:
-SIM_BUILD				= sim_build/gl
-COMPILE_ARGS    += -DGL_TEST
-COMPILE_ARGS    += -DFUNCTIONAL
-COMPILE_ARGS    += -DUSE_POWER_PINS
-COMPILE_ARGS    += -DSIM
-COMPILE_ARGS    += -DUNIT_DELAY=\#1
-VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
-VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
+# Default testbench
+TB ?= logic_gates_tb
 
-# this gets copied in by the GDS action workflow
-VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
+# Collect all Verilog sources
+#SRC_FILES := $(wildcard $(SRC_DIR)/*.v)
+SRC_FILES := $(shell find $(SRC_DIR) -type f -name "*.v")
+TB_FILE   := $(TB_DIR)/$(TB).v
 
-endif
+# Default target
+.PHONY: all
+all: run
 
-# Allow sharing configuration between design and testbench via `include`:
-COMPILE_ARGS 		+= -I$(SRC_DIR)
+# Create build directory if not existing
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
-# Include the testbench sources:
-VERILOG_SOURCES += $(PWD)/tb.v
-TOPLEVEL = tb
+# Compile step
+$(SIM_OUT): $(SRC_FILES) $(TB_FILE) | $(BUILD_DIR)
+	@echo "Compiling $(TB_FILE)..."
+	$(IVERILOG) $(STD) -o $@ $(SRC_FILES) $(TB_FILE)
 
-# List test modules to run, separated by commas and without the .py suffix:
-COCOTB_TEST_MODULES = test
+# Run simulation
+.PHONY: run
+run: $(SIM_OUT)
+	@echo "Running simulation..."
+	$(VVP) $(SIM_OUT)
+	@if [ -f "$(VCD_FILE)" ]; then \
+		echo "Opening GTKWave..."; \
+		$(GTKWAVE) $(VCD_FILE) & \
+	fi
 
-# include cocotb's make rules to take care of the simulator setup
-include $(shell cocotb-config --makefiles)/Makefile.sim
+# Clean build artifacts
+.PHONY: clean
+clean:
+	rm -rf $(BUILD_DIR) $(VCD_FILE)
+	@echo "Clean complete."
