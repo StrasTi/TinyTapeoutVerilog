@@ -1,9 +1,8 @@
 # Tiny Tapeout project information
 project:
-  title:        ""      # Project title
-  author:       ""      # Your name
-  discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description:  ""      # One line description of what your project does
+  title:        "4Bit-ALU"      # Project title
+  author:       "Timon Strassern"      # Your name
+  description:  "4Bit arithmetic logic unit perfomring arithmetic and bitwise operations on integer binary numbers."     # One line description of what your project does
   language:     "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz:     0       # Clock frequency in Hz (or 0 if not applicable)
 
@@ -18,35 +17,43 @@ project:
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
     - "project.v"
+    - "modules/1_bit_alu.v"
+    - "modules/full_adder.v"
+    - "modules/multiplexer.v"
+    - "modules/gates/and_gate.v"
+    - "modules/gates/enable_gate.v"
+    - "modules/gates/inverter_gate.v"
+    - "modules/gates/or_gate.v"
+    - "modules/gates/xor_gate.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
-  ui[6]: ""
-  ui[7]: ""
+  ui[0]: "a0"
+  ui[1]: "a1"
+  ui[2]: "a2"
+  ui[3]: "a3"
+  ui[4]: "b0"
+  ui[5]: "b1"
+  ui[6]: "b2"
+  ui[7]: "b3"
 
   # Outputs
-  uo[0]: ""
-  uo[1]: ""
-  uo[2]: ""
-  uo[3]: ""
-  uo[4]: ""
-  uo[5]: ""
-  uo[6]: ""
-  uo[7]: ""
+  uo[0]: "s0"
+  uo[1]: "s1"
+  uo[2]: "s2"
+  uo[3]: "s3"
+  uo[4]: "s4"
+  uo[5]: "s5"
+  uo[6]: "s6"
+  uo[7]: "s7"
 
   # Bidirectional pins
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
-  uio[3]: ""
+  uio[0]: "f0"
+  uio[1]: "f1"
+  uio[2]: "f2"
+  uio[3]: "f3"
   uio[4]: ""
   uio[5]: ""
   uio[6]: ""
