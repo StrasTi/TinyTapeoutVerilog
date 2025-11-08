@@ -22,7 +22,9 @@ TB ?= logic_gates_tb
 
 # Collect all Verilog sources
 #SRC_FILES := $(wildcard $(SRC_DIR)/*.v)
-SRC_FILES := $(shell find $(SRC_DIR) -type f -name "*.v")
+V_SRC_FILES := $(shell find $(SRC_DIR) -type f -name "*.v")
+VH_SRC_FILES := $(shell find $(SRC_DIR) -type f -name "*.vh")
+SRC_FILES := $(V_SRC_FILES) $(VH_SRC_FILES)
 TB_FILE   := $(TB_DIR)/$(TB).v
 
 # Default target
