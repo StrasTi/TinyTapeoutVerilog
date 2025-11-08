@@ -15,7 +15,6 @@ module one_bit_alu_tb;
     localparam OUTPUT_A_OR_B = 4'b0101;
     localparam OUTPUT_A_XOR_B = 4'b0110;
     localparam OUTPUT_A_PLUS_B = 4'b0111;
-    // TODO: Subtracting
     localparam OUTPUT_B_MINUS_A = 4'b1111;
 
     one_bit_alu one_bit_alu(
