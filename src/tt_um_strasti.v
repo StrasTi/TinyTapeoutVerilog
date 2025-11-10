@@ -5,7 +5,7 @@
 
 `default_nettype none
 
-module tt_um_example (
+module tt_um_strasti (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -16,12 +16,21 @@ module tt_um_example (
     input  wire       rst_n     // reset_n - low to reset
 );
 
+  // alu instance
+  top_level_alu_control top_level_alu_control_inst(
+    .alu_in(ui_in),
+    .ctrl_in(uio_in),
+    .alu_out(uo_out),
+    .clk(clk),
+    .rst_n(rst_n)
+  );
+
   // All output pins must be assigned. If not used, assign to 0.
-  assign uo_out  = ui_in + uio_in;  // Example: ou_out is the sum of ui_in and uio_in
   assign uio_out = 0;
+  // Using IOs as input only
   assign uio_oe  = 0;
 
   // List all unused inputs to prevent warnings
-  wire _unused = &{ena, clk, rst_n, 1'b0};
+  wire _unused = &{ena, 1'b0};
 
 endmodule

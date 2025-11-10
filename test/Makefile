@@ -1,57 +1,57 @@
-# Verilog Simulation Makefile
+# Makefile
+# See https://docs.cocotb.org/en/stable/quickstart.html for more info
 
-# Directories
-SRC_DIR := $(PWD)/../src
-TB_DIR  := tb
-BUILD_DIR := build
+# defaults
+SIM ?= icarus
+TOPLEVEL_LANG ?= verilog
+SRC_DIR = $(PWD)/../src
+PROJECT_SOURCES = \
+		constants/constants.vh \
+		modules/one_bit_alu.v \
+		modules/full_adder.v \
+		modules/full_subtractor.v \
+		modules/multiplexer.v \
+		modules/gates/and_gate.v \
+		modules/gates/enable_gate.v \
+		modules/gates/inverter_gate.v \
+		modules/gates/or_gate.v \
+		modules/gates/xor_gate.v \
+		top_level_alu_control.v \
+		eight_bit_alu.v \
+		tt_um_strasti.v
 
-# Tools
-IVERILOG := iverilog
-VVP := vvp
-GTKWAVE := gtkwave
+ifneq ($(GATES),yes)
 
-# Files
-VCD_FILE := $(TB_DIR)/$(TB).vcd
-SIM_OUT  := $(BUILD_DIR)/sim.out
+# RTL simulation:
+SIM_BUILD				= sim_build/rtl
+VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
 
-# Verilog standard
-STD := -g2012
+else
 
-# Default testbench
-TB ?= logic_gates_tb
+# Gate level simulation:
+SIM_BUILD				= sim_build/gl
+COMPILE_ARGS    += -DGL_TEST
+COMPILE_ARGS    += -DFUNCTIONAL
+COMPILE_ARGS    += -DUSE_POWER_PINS
+COMPILE_ARGS    += -DSIM
+COMPILE_ARGS    += -DUNIT_DELAY=\#1
+VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v
+VERILOG_SOURCES += $(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v
 
-# Collect all Verilog sources
-#SRC_FILES := $(wildcard $(SRC_DIR)/*.v)
-V_SRC_FILES := $(shell find $(SRC_DIR) -type f -name "*.v")
-VH_SRC_FILES := $(shell find $(SRC_DIR) -type f -name "*.vh")
-SRC_FILES := $(V_SRC_FILES) $(VH_SRC_FILES)
-TB_FILE   := $(TB_DIR)/$(TB).v
+# this gets copied in by the GDS action workflow
+VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
 
-# Default target
-.PHONY: all
-all: run
+endif
 
-# Create build directory if not existing
-$(BUILD_DIR):
-	mkdir -p $(BUILD_DIR)
+# Allow sharing configuration between design and testbench via `include`:
+COMPILE_ARGS 		+= -I$(SRC_DIR)
 
-# Compile step
-$(SIM_OUT): $(SRC_FILES) $(TB_FILE) | $(BUILD_DIR)
-	@echo "Compiling $(TB_FILE)..."
-	$(IVERILOG) $(STD) -o $@ $(SRC_FILES) $(TB_FILE)
+# Include the testbench sources:
+VERILOG_SOURCES += $(PWD)/tb.v
+TOPLEVEL = tb
 
-# Run simulation
-.PHONY: run
-run: $(SIM_OUT)
-	@echo "Running simulation..."
-	$(VVP) $(SIM_OUT)
-	@if [ -f "$(VCD_FILE)" ]; then \
-		echo "Opening GTKWave..."; \
-		$(GTKWAVE) $(VCD_FILE) & \
-	fi
+# List test modules to run, separated by commas and without the .py suffix:
+COCOTB_TEST_MODULES = test
 
-# Clean build artifacts
-.PHONY: clean
-clean:
-	rm -rf $(BUILD_DIR) $(VCD_FILE)
-	@echo "Clean complete."
+# include cocotb's make rules to take care of the simulator setup
+include $(shell cocotb-config --makefiles)/Makefile.sim
