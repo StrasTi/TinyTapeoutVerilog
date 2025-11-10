@@ -1,10 +1,5 @@
 
-module eight_bit_alu #(
-        parameter F0 = 2'd0,
-        parameter F1 = 2'd1,
-        parameter F2 = 2'd2,
-        parameter F3 = 2'd3)
-    (
+module eight_bit_alu (
     input [`DATA_WIDTH-1:0] a8_i,
     input [`DATA_WIDTH-1:0] b8_i,
     input [`CONTROL_WIDTH-1:0] f8_i,
