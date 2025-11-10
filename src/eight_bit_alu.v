@@ -37,9 +37,7 @@ module eight_bit_alu #(
 
     // ALU status flags
     always @(*) begin
-
-        // default
-        carry_borrow_out = 0;
+        
         // mux for carry or borrow out
         case(f8_i)
         `OUTPUT_A_PLUS_B : begin 
@@ -47,6 +45,9 @@ module eight_bit_alu #(
         end
         `OUTPUT_A_MINUS_B : begin
             carry_borrow_out = borrow_bits[`CARRY_BORROW_OUT_BIT];
+        end
+        default : begin
+            carry_borrow_out = 0;
         end
         endcase
 

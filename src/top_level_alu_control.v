@@ -10,10 +10,7 @@ module top_level_alu_control(
     // register for input and result
     reg [`DATA_WIDTH-1:0] a_i;
     reg [`DATA_WIDTH-1:0] b_i;
-    reg [`DATA_WIDTH-1:0] alu_result_reg;
-    reg carry_borrow_out_reg;
-    reg [1:0] status_flag_reg;
-    reg [`DATA_WIDTH-1:0] TEMP_alu_default_reg;
+    reg [`DATA_WIDTH-1:0] alu_output_reg;
     
     reg [1:0] state, next_state, prev_state;
     localparam READ_A = 2'b00;
@@ -38,12 +35,10 @@ module top_level_alu_control(
 
     always @(posedge clk) begin
         if (rst_n) begin
-            next_state <= READ_A;
+            state <= READ_A;
             a_i <= 8'd0;
             b_i <= 8'd0;
-            alu_result_reg <= 8'd0;
-            carry_borrow_out_reg <= 1'b0;
-            status_flag_reg <= 2'b0;
+            alu_output_reg <= 8'd0;
         end else begin
             // set state
             prev_state <= state;
@@ -51,7 +46,7 @@ module top_level_alu_control(
 
             // clear reg when state changes
             if (state !== prev_state) begin
-                TEMP_alu_default_reg <= 8'd0;
+                alu_output_reg <= 8'd0;
             end
 
             case(state)
@@ -62,34 +57,34 @@ module top_level_alu_control(
                 b_i <= alu_in;
             end
             CALC : begin
-                TEMP_alu_default_reg <= alu_result;
+                alu_output_reg <= alu_result;
             end
             STATUS : begin
-                TEMP_alu_default_reg[1:0] <= alu_status_flag;
-                TEMP_alu_default_reg[2] <= alu_borrow_out;
+                alu_output_reg[1:0] <= alu_status_flag;
+                alu_output_reg[2] <= alu_borrow_out;
             end
             endcase
         end
     end
 
     always @(*) begin
-        next_state <= state;
+        next_state = state;
         case(ctrl_in[1:0])
         READ_A : begin
-            next_state <= READ_A;
+            next_state = READ_A;
         end
         READ_B : begin
-            next_state <= READ_B;
+            next_state = READ_B;
         end
         CALC : begin
-            next_state <= CALC;
+            next_state = CALC;
         end
         STATUS : begin
-            next_state <= STATUS;
+            next_state = STATUS;
         end
         endcase
     end
 
-    assign alu_out = TEMP_alu_default_reg;
+    assign alu_out = alu_output_reg;
 
 endmodule
