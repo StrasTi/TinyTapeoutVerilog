@@ -1,5 +1,3 @@
-`include "../src/constants/constants.vh"
-
 module multiplexer #(
         parameter AND_OUTPUT = 3'b000,
         parameter OR_OUTPUT = 3'b001,

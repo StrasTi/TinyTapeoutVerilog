@@ -1,4 +1,3 @@
-`include "../src/constants/constants.vh"
 
 module eight_bit_alu #(
         parameter F0 = 2'd0,

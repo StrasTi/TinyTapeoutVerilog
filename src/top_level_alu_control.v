@@ -1,5 +1,3 @@
-`include "../src/constants/constants.vh"
-`timescale 1ns/1ns
 
 module top_level_alu_control(
     input  wire [7:0] alu_in,    // ALU data input
